@@ -1,5 +1,6 @@
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
+import 'package:untitled/components/confirm_password.dart';
 import 'package:untitled/components/email_textfield.dart';
 import 'package:untitled/components/password_textfield.dart';
 import 'package:untitled/components/sign_button.dart';
@@ -17,10 +18,12 @@ class RegisterPage extends StatefulWidget {
 class _RegisterPageState extends State<RegisterPage> {
   late final TextEditingController _email;
   late final TextEditingController _password;
+  late final TextEditingController _confirmPassword;
   @override
   void initState() {
     _email = TextEditingController();
     _password = TextEditingController();
+    _confirmPassword = TextEditingController();
     super.initState();
   }
 
@@ -28,6 +31,7 @@ class _RegisterPageState extends State<RegisterPage> {
   void dispose() {
     _email.dispose();
     _password.dispose();
+    _confirmPassword.dispose();
     super.dispose();
   }
 
@@ -135,8 +139,8 @@ class _RegisterPageState extends State<RegisterPage> {
               const SizedBox(
                 height: 10,
               ),
-              PasswordText(
-                controller: _password,
+              ConfirmPasswordText(
+                controller: _confirmPassword,
                 hintText: 'Confirm your password',
                 obscureText: true,
                 autoCorrect: false,
