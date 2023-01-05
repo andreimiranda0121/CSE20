@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:untitled/components/email_textfield.dart';
 import 'package:untitled/components/password_textfield.dart';
 import 'package:untitled/components/sign_button.dart';
+import 'package:untitled/services/auth_service.dart';
 
 
 class LoginPage extends StatefulWidget {
@@ -193,16 +194,19 @@ class _LoginPageState extends State<LoginPage> {
               Row(
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
-                  Container(
-                    padding: const EdgeInsets.all(20),
-                    decoration: BoxDecoration(
-                      border: Border.all(color: Colors.white),
-                      borderRadius: BorderRadius.circular(16),
-                      color: Colors.white,
-                    ),
-                    child: Image.asset(
-                      'lib/images/google-icon.png',
-                      height: 40,
+                  GestureDetector(
+                    onTap: ()=>AuthService().signInWithGoogle(),
+                    child: Container(
+                      padding: const EdgeInsets.all(20),
+                      decoration: BoxDecoration(
+                        border: Border.all(color: Colors.white),
+                        borderRadius: BorderRadius.circular(16),
+                        color: Colors.white,
+                      ),
+                      child: Image.asset(
+                        'lib/images/google-icon.png',
+                        height: 40,
+                      ),
                     ),
                   )
                 ],

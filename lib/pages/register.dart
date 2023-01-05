@@ -1,6 +1,5 @@
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
-import 'package:untitled/components/confirm_password.dart';
 import 'package:untitled/components/email_textfield.dart';
 import 'package:untitled/components/password_textfield.dart';
 import 'package:untitled/components/sign_button.dart';
@@ -35,7 +34,7 @@ class _RegisterPageState extends State<RegisterPage> {
     super.dispose();
   }
 
-  void signIUp() async {
+  void signUp() async {
     //show loading circle
     showDialog(
         context: context,
@@ -46,10 +45,17 @@ class _RegisterPageState extends State<RegisterPage> {
         });
     //sign in
     try {
-      await FirebaseAuth.instance.signInWithEmailAndPassword(
-          email: _email.text, password: _password.text);
+      if(_password.text == _confirmPassword.text){
+        await FirebaseAuth.instance.createUserWithEmailAndPassword(
+            email: _email.text, password: _password.text);
+        Navigator.pop(context);
+      }else{
+        wrongPassword();
+        Navigator.pop(context);
+      }
+
       // ignore: use_build_context_synchronously
-      Navigator.pop(context);
+
     } on FirebaseAuthException catch (e) {
       //wrong email
       Navigator.pop(context);
@@ -108,7 +114,7 @@ class _RegisterPageState extends State<RegisterPage> {
                 height: 50,
               ),
               const Text(
-                'Welcome back you\'ve been missed!',
+                'Let\'s create an account for you!',
                 style: TextStyle(
                   color: Colors.black,
                   fontSize: 16,
@@ -139,7 +145,8 @@ class _RegisterPageState extends State<RegisterPage> {
               const SizedBox(
                 height: 10,
               ),
-              ConfirmPasswordText(
+              PasswordText(
+
                 controller: _confirmPassword,
                 hintText: 'Confirm your password',
                 obscureText: true,
@@ -152,7 +159,7 @@ class _RegisterPageState extends State<RegisterPage> {
               ),
               SignUpButton(
                 text: 'Sign Up',
-                onTap: signIUp,
+                onTap: signUp,
               ),
               //google sigin
               const SizedBox(
