@@ -6,8 +6,7 @@ class PasswordText extends StatelessWidget {
   final bool autoCorrect;
   final bool suggestion;
   final bool obscureText;
-
-  const PasswordText({
+  PasswordText({
     super.key,
     required this.controller,
     required this.hintText,
@@ -18,13 +17,16 @@ class PasswordText extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final password = controller.text;
     return Padding(
       padding: const EdgeInsets.symmetric(horizontal: 25.0),
-      child: TextField(
+      child: TextFormField(
         controller: controller,
         obscureText: obscureText,
         autocorrect: autoCorrect,
         enableSuggestions: suggestion,
+        autovalidateMode: AutovalidateMode.onUserInteraction,
+        validator: (value) => value != null && value.length < 6 ? 'Input atleast 6 characters' : null,
         decoration: InputDecoration(
           hintText: hintText,
           enabledBorder: const OutlineInputBorder(

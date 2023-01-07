@@ -1,3 +1,4 @@
+import 'package:email_validator/email_validator.dart';
 import 'package:flutter/material.dart';
 
 class EmailText extends StatelessWidget {
@@ -16,10 +17,12 @@ class EmailText extends StatelessWidget {
   Widget build(BuildContext context) {
     return Padding(
       padding: const EdgeInsets.symmetric(horizontal: 25.0),
-      child: TextField(
+      child: TextFormField(
         controller: controller,
         autocorrect: autoCorrect,
         enableSuggestions: suggestion,
+        autovalidateMode: AutovalidateMode.onUserInteraction,
+        validator: (email) => email!= null && !EmailValidator.validate(email) ? 'Enter a valid email': null,
         decoration: InputDecoration(
           hintText: hintText,
           enabledBorder: const OutlineInputBorder(
@@ -32,6 +35,10 @@ class EmailText extends StatelessWidget {
           ),
           fillColor: Colors.white,
           filled: true,
+          suffixIcon: TextButton(
+            child: const Text("Send OTP"),
+            onPressed: (){},
+          )
         ),
       ),
     );
