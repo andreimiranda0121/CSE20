@@ -4,6 +4,7 @@ import 'package:untitled/components/email_textfield.dart';
 import 'package:untitled/components/password_textfield.dart';
 import 'package:untitled/components/sign_button.dart';
 import 'package:untitled/main.dart';
+import 'package:untitled/services/auth_service.dart';
 import 'package:untitled/services/utils.dart';
 
 class RegisterPage extends StatefulWidget {
@@ -103,7 +104,7 @@ class _RegisterPageState extends State<RegisterPage> {
                   autoCorrect: false,
                   suggestion: false,
                 ),
-                //sigin button
+                //signing button
                 const SizedBox(
                   height: 25,
                 ),
@@ -111,7 +112,7 @@ class _RegisterPageState extends State<RegisterPage> {
                   text: 'Sign Up',
                   onTap: signUp,
                 ),
-                //google sigin
+                //google signing
                 const SizedBox(
                   height: 50,
                 ),
@@ -147,16 +148,19 @@ class _RegisterPageState extends State<RegisterPage> {
                 Row(
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: [
-                    Container(
-                      padding: const EdgeInsets.all(20),
-                      decoration: BoxDecoration(
-                        border: Border.all(color: Colors.white),
-                        borderRadius: BorderRadius.circular(16),
-                        color: Colors.white,
-                      ),
-                      child: Image.asset(
-                        'lib/images/google-icon.png',
-                        height: 40,
+                    GestureDetector(
+                      onTap: ()=>AuthService().signInWithGoogle(),
+                      child: Container(
+                        padding: const EdgeInsets.all(20),
+                        decoration: BoxDecoration(
+                          border: Border.all(color: Colors.white),
+                          borderRadius: BorderRadius.circular(16),
+                          color: Colors.white,
+                        ),
+                        child: Image.asset(
+                          'lib/images/google-icon.png',
+                          height: 40,
+                        ),
                       ),
                     )
                   ],

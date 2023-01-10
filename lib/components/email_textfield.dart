@@ -1,6 +1,11 @@
 import 'package:email_validator/email_validator.dart';
 import 'package:flutter/material.dart';
 
+
+
+
+
+
 class EmailText extends StatelessWidget {
   final TextEditingController controller;
   final String hintText;
@@ -35,10 +40,7 @@ class EmailText extends StatelessWidget {
           ),
           fillColor: Colors.white,
           filled: true,
-          suffixIcon: TextButton(
-            child: const Text("Send OTP"),
-            onPressed: (){},
-          )
+
         ),
       ),
     );

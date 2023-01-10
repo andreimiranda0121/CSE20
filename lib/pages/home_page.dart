@@ -1,87 +1,161 @@
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
+import 'package:untitled/pages/login_page.dart';
 import 'package:untitled/services/auth_service.dart';
 
-class HomePage extends StatefulWidget {
-  const HomePage({super.key});
 
+class HomePage extends StatefulWidget {
+  HomePage({super.key});
+  final user = FirebaseAuth.instance.currentUser?.uid;
   @override
-  State<HomePage> createState() => _HomePageState();
+  State<HomePage> createState() => _HomePageState(user!);
 }
 
 class _HomePageState extends State<HomePage> {
+  final String uid;
+  String input="";
+  _HomePageState(this.uid);
+  var taskcollections = FirebaseFirestore.instance.collection('task');
+  String task ="";
   void signOut() {
     AuthService().logout();
     FirebaseAuth.instance.signOut();
   }
 
+  void showdialog(bool isUpdate, DocumentSnapshot? ds) {
+    GlobalKey<FormState> formkey = GlobalKey<FormState>();
+
+    showDialog(
+        context: context,
+        builder: (context) {
+          return AlertDialog(
+            title: isUpdate ? const Text("Update Todo") : const Text("Add Todo"),
+            content: Form(
+              key: formkey,
+              autovalidateMode: AutovalidateMode.onUserInteraction,
+              child: TextFormField(
+                autofocus: true,
+                decoration: const InputDecoration(
+                  border: OutlineInputBorder(),
+                  labelText: "Task",
+                ),
+                validator: (_val) {
+                  if (_val!.isEmpty) {
+                    return "Can't Be Empty";
+                  } else {
+                    return null;
+                  }
+                },
+                onChanged: (_val) {
+                  task = _val;
+                },
+              ),
+            ),
+            actions: <Widget>[
+              ElevatedButton(
+                onPressed: () {
+                  if (formkey.currentState!.validate()) {
+                    formkey.currentState?.save();
+                    if (isUpdate) {
+                      taskcollections
+                          .doc(uid)
+                          .collection('task')
+                          .doc(ds?.id)
+                          .update({'task': task, 'time': DateTime.now(),
+                            }
+                          );
+                    } else {
+                      //  insert
+
+                      taskcollections.doc(uid).collection('task').add({
+                        'task': task,
+                        'time': DateTime.now(),
+                      });
+                    }
+                    Navigator.pop(context);
+                  }
+                },
+                child: const Text(
+                  "Add",
+                  style: TextStyle(
+                    fontFamily: "tepeno",
+                    color: Colors.white,
+                  ),
+                ),
+              ),
+            ],
+          );
+        });
+  }
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
+        title: const Text('TODO'),
         actions: [IconButton(onPressed: signOut, icon: const Icon(Icons.logout))],
       ),
-      body: Column(
-        children: [
-          Container(
-            margin: EdgeInsets.all(20),
-            height: 100,
-            width:double.infinity,
-            decoration: BoxDecoration(
-              color: Colors.grey.shade400,
-              borderRadius: BorderRadius.circular(5), //border corner radius
-              /*boxShadow:[
-                BoxShadow(
-                  color: Colors.grey.withOpacity(0.5), //color of shadow
-                  spreadRadius: 5, //spread radius
-                  blurRadius: 7, // blur radius
-                  offset: const Offset(0, 2), // changes position of shadow
-                  //first paramerter of offset is left-right
-                  //second parameter is top to down
-                )
-                //you can set more BoxShadow() here
-              ],*/
-            ),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children:  [
-                Text(
-                  "Hello World",
-                  style: TextStyle(
-                    color: Colors.green[900],
+      floatingActionButton: FloatingActionButton(
+        onPressed: () => showdialog(false,null),
+        child: const Icon(Icons.add),
+      ),
+      body: StreamBuilder<QuerySnapshot>(
+        stream: taskcollections
+          .doc(uid)
+          .collection('task')
+          .orderBy('time')
+          .snapshots(),
+        builder: (context, snapshot) {
+          if (snapshot.hasData) {
+            return ListView.builder(
+              itemCount: snapshot.data!.docs.length,
+              itemBuilder: (context, index) {
+              DocumentSnapshot ds = snapshot.data!.docs[index];
+              return Container(
+                decoration: BoxDecoration(
+                color: Colors.blue,
+                borderRadius: BorderRadius.circular(5.0),
+                ),
+              margin: const EdgeInsets.all(8.0),
+              child: ListTile(
+              title: Text(
+                ds['task'],
+                style: const TextStyle(
+                  fontFamily: "tepeno",
+                  fontSize: 18.0,
+                  color: Colors.white,
                   ),
-                ),
-                const SizedBox(height: 5,),
-                const Text(
-                  "₱ 5000",
-                  textAlign: TextAlign.center,
+              ),
+              onLongPress: () {
+              // delete
+                taskcollections
+                  .doc(uid)
+                  .collection('task')
+                  .doc(ds.id)
+                  .delete();
+              },
+              onTap: () {
+                // == Update
+                showdialog(true, ds);
+              },
+              ),
+              );
+              },
+          );
+          } else if (snapshot.hasError) {
+            return  AlertDialog(
+              content: const Text("Please re log in, thank you."),
+              actions: <Widget>[
+                TextButton(
+                  onPressed: signOut,
+                  child: const Text("OK"),
                 ),
               ],
-            ),
-          ),
-          const SizedBox(height: 100,),
-          Container(
-            alignment: Alignment.center,
-            margin: const EdgeInsets.all(20),
-            height: 200,
-            width:double.infinity,
-            decoration: BoxDecoration(
-              color: Colors.grey,
-              borderRadius: BorderRadius.circular(5), //border corner radius
-              boxShadow:[
-                BoxShadow(
-                  color: Colors.grey.withOpacity(0.5), //color of shadow
-                  spreadRadius: 5, //spread radius
-                  blurRadius: 7, // blur radius
-                  offset: const Offset(0, 2), // changes position of shadow
-                  //first paramerter of offset is left-right
-                  //second parameter is top to down
-                ),
-                //you can set more BoxShadow() here
-              ],
-            ),
-          ),
-        ],
+            );
+          } else {
+            return const Center(child: CircularProgressIndicator(),);
+          }
+        },
       ),
     );
   }
