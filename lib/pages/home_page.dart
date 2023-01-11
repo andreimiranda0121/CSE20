@@ -4,7 +4,6 @@ import 'package:flutter/material.dart';
 import 'package:untitled/pages/login_page.dart';
 import 'package:untitled/services/auth_service.dart';
 
-
 class HomePage extends StatefulWidget {
   HomePage({super.key});
   final user = FirebaseAuth.instance.currentUser?.uid;
@@ -14,10 +13,10 @@ class HomePage extends StatefulWidget {
 
 class _HomePageState extends State<HomePage> {
   final String uid;
-  String input="";
+  String input = "";
   _HomePageState(this.uid);
   var taskcollections = FirebaseFirestore.instance.collection('task');
-  String task ="";
+  String task = "";
   void signOut() {
     AuthService().logout();
     FirebaseAuth.instance.signOut();
@@ -30,7 +29,8 @@ class _HomePageState extends State<HomePage> {
         context: context,
         builder: (context) {
           return AlertDialog(
-            title: isUpdate ? const Text("Update Todo") : const Text("Add Todo"),
+            title:
+                isUpdate ? const Text("Update Todo") : const Text("Add Todo"),
             content: Form(
               key: formkey,
               autovalidateMode: AutovalidateMode.onUserInteraction,
@@ -62,9 +62,10 @@ class _HomePageState extends State<HomePage> {
                           .doc(uid)
                           .collection('task')
                           .doc(ds?.id)
-                          .update({'task': task, 'time': DateTime.now(),
-                            }
-                          );
+                          .update({
+                        'task': task,
+                        'time': DateTime.now(),
+                      });
                     } else {
                       //  insert
 
@@ -88,62 +89,67 @@ class _HomePageState extends State<HomePage> {
           );
         });
   }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text('TODO'),
-        actions: [IconButton(onPressed: signOut, icon: const Icon(Icons.logout))],
+        backgroundColor: Colors.amber[400],
+        title: const Text('To-Do'),
+        actions: [
+          IconButton(onPressed: signOut, icon: const Icon(Icons.logout))
+        ],
       ),
       floatingActionButton: FloatingActionButton(
-        onPressed: () => showdialog(false,null),
+        onPressed: () => showdialog(false, null),
         child: const Icon(Icons.add),
+        backgroundColor: Colors.greenAccent[700],
       ),
       body: StreamBuilder<QuerySnapshot>(
         stream: taskcollections
-          .doc(uid)
-          .collection('task')
-          .orderBy('time')
-          .snapshots(),
+            .doc(uid)
+            .collection('task')
+            .orderBy('time')
+            .snapshots(),
         builder: (context, snapshot) {
           if (snapshot.hasData) {
             return ListView.builder(
               itemCount: snapshot.data!.docs.length,
               itemBuilder: (context, index) {
-              DocumentSnapshot ds = snapshot.data!.docs[index];
-              return Container(
-                decoration: BoxDecoration(
-                color: Colors.blue,
-                borderRadius: BorderRadius.circular(5.0),
-                ),
-              margin: const EdgeInsets.all(8.0),
-              child: ListTile(
-              title: Text(
-                ds['task'],
-                style: const TextStyle(
-                  fontFamily: "tepeno",
-                  fontSize: 18.0,
-                  color: Colors.white,
+                DocumentSnapshot ds = snapshot.data!.docs[index];
+                return Container(
+                  decoration: BoxDecoration(
+                    color: Colors.blueGrey[400],
+                    borderRadius: BorderRadius.circular(5.0),
                   ),
-              ),
-              onLongPress: () {
-              // delete
-                taskcollections
-                  .doc(uid)
-                  .collection('task')
-                  .doc(ds.id)
-                  .delete();
+                  margin: const EdgeInsets.all(8.0),
+                  child: ListTile(
+                    title: Text(
+                      ds['task'],
+                      style: const TextStyle(
+                        fontFamily: "tepeno",
+                        fontSize: 18.0,
+                        color: Colors.white,
+                      ),
+                    ),
+                    onLongPress: () {
+                      // delete
+                      taskcollections
+                          .doc(uid)
+                          .collection('task')
+                          .doc(ds.id)
+                          .delete();
+                    },
+                    onTap: () {
+                      // == Update
+                      showdialog(true, ds);
+                    },
+                  ),
+                );
               },
-              onTap: () {
-                // == Update
-                showdialog(true, ds);
-              },
-              ),
-              );
-              },
-          );
+            );
           } else if (snapshot.hasError) {
-            return  AlertDialog(
+            return AlertDialog(
               content: const Text("Please re log in, thank you."),
               actions: <Widget>[
                 TextButton(
@@ -153,7 +159,9 @@ class _HomePageState extends State<HomePage> {
               ],
             );
           } else {
-            return const Center(child: CircularProgressIndicator(),);
+            return const Center(
+              child: CircularProgressIndicator(),
+            );
           }
         },
       ),

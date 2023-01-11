@@ -14,11 +14,12 @@ void main() async {
   runApp(const MyApp());
 }
 
-Future initialization(BuildContext? context) async{
+Future initialization(BuildContext? context) async {
   await Future.delayed(Duration(seconds: 3));
 }
 
 final navigatorKey = GlobalKey<NavigatorState>();
+
 class MyApp extends StatelessWidget {
   const MyApp({super.key});
 
